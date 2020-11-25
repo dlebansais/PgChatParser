@@ -8,6 +8,9 @@
     using System.Threading;
     using System.Windows.Threading;
 
+    /// <summary>
+    /// Parses the chat log files of PG.
+    /// </summary>
     public class Parser : IDisposable
     {
         #region Constants
@@ -16,36 +19,42 @@
         #endregion
 
         #region Init
-        public Parser(Dispatcher dispatcher)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Parser"/> class.
+        /// </summary>
+        public Parser()
         {
-            Dispatcher = dispatcher;
+            Dispatcher = Dispatcher.CurrentDispatcher;
             InitFolders();
         }
-
-        public Dispatcher Dispatcher { get; }
         #endregion
 
         #region Cleanup
         private void Disconnect()
         {
-            if (LogStream != null)
+            using (LogStream)
             {
-                using (FileStream fs = LogStream) { }
-                LogStream = null;
             }
+
+            LogStream = null !;
         }
         #endregion
 
         #region Client Interface
+        /// <summary>
+        /// Starts logging chat.
+        /// </summary>
         public void StartLogging()
         {
             IsStarting = true;
             IsReconnectionRequired = false;
-            FolderCheck = new Stopwatch();
 
             InitChatTimer();
         }
 
+        /// <summary>
+        /// Stops logging chat.
+        /// </summary>
         public void StopLogging()
         {
             if (ChatTimer != null)
@@ -57,7 +66,15 @@
             Disconnect();
         }
 
-        private bool IsStarting;
+        /// <summary>
+        /// Gets the local log folder.
+        /// </summary>
+        public string LocalLogFolder { get; private set; } = string.Empty;
+
+        /// <summary>
+        /// Gets the low privilege local log folder.
+        /// </summary>
+        public string LocalLowLogFolder { get; private set; } = string.Empty;
         #endregion
 
         #region Timer
@@ -67,7 +84,7 @@
             ChatTimer.Change(PollDelay, Timeout.InfiniteTimeSpan);
         }
 
-        private void ChatTimerCallback(object state)
+        private void ChatTimerCallback(object? state)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new ChatTimerHandler(OnChatTimer));
         }
@@ -113,11 +130,13 @@
             ChatTimer?.Change(PollDelay, Timeout.InfiniteTimeSpan);
         }
 
+        private Dispatcher Dispatcher;
         private bool IsReconnectionRequired;
-        private Stopwatch FolderCheck;
-        private FileStream LogStream;
-        private Timer ChatTimer;
+        private Stopwatch FolderCheck = new Stopwatch();
+        private FileStream LogStream = null!;
+        private Timer? ChatTimer;
         private DateTime LastLogCheck;
+        private bool IsStarting;
         #endregion
 
         #region Folders
@@ -131,7 +150,7 @@
 
         private void SelectFolder()
         {
-            if (!string.IsNullOrEmpty(CustomLogFolder))
+            if (CustomLogFolder.Length > 0)
             {
                 SelectedLogFolder = CustomLogFolder;
                 return;
@@ -177,24 +196,22 @@
                 }
                 catch
                 {
-                    LogStream = null;
+                    LogStream = null !;
                 }
             }
         }
 
-        private static string FilePathInFolder(string LogFolder)
+        private static string FilePathInFolder(string logFolder)
         {
             DateTime Now = DateTime.Now;
             string LogFile = "Chat-" + (Now.Year % 100).ToString(CultureInfo.InvariantCulture) + "-" + Now.Month.ToString("D2", CultureInfo.InvariantCulture) + "-" + Now.Day.ToString("D2", CultureInfo.InvariantCulture) + ".log";
-            string LogFilePath = Path.Combine(LogFolder, LogFile);
+            string LogFilePath = Path.Combine(logFolder, LogFile);
 
             return LogFilePath;
         }
 
-        private string CustomLogFolder = null;
-        private string SelectedLogFolder = null;
-        public string LocalLogFolder { get; private set; }
-        public string LocalLowLogFolder { get; private set; }
+        private string CustomLogFolder = string.Empty;
+        private string SelectedLogFolder = string.Empty;
         #endregion
 
         #region Parsing
@@ -227,27 +244,30 @@
             }
         }
 
-        private void LogString(string Line)
+        private void LogString(string line)
         {
-            if (Line.Length <= 20 || Line[17] != '\t')
+            if (line.Length <= 20 || line[17] != '\t')
                 return;
 
             int Year, Month, Day, Hour, Minute, Second;
-            if (!int.TryParse(Line.Substring(0, 2), out Year) ||
-                !int.TryParse(Line.Substring(3, 2), out Month) ||
-                !int.TryParse(Line.Substring(6, 2), out Day) ||
-                !int.TryParse(Line.Substring(9, 2), out Hour) ||
-                !int.TryParse(Line.Substring(12, 2), out Minute) ||
-                !int.TryParse(Line.Substring(15, 2), out Second))
+            if (!int.TryParse(line.Substring(0, 2), out Year) ||
+                !int.TryParse(line.Substring(3, 2), out Month) ||
+                !int.TryParse(line.Substring(6, 2), out Day) ||
+                !int.TryParse(line.Substring(9, 2), out Hour) ||
+                !int.TryParse(line.Substring(12, 2), out Minute) ||
+                !int.TryParse(line.Substring(15, 2), out Second))
                 return;
 
             DateTime LogTime = new DateTime(Year, Month, Day, Hour, Minute, Second, DateTimeKind.Local);
 
-            Line = Line.Substring(18);
-            ParseLine(LogTime, Line);
+            line = line.Substring(18);
+            ParseLine(LogTime, line);
         }
 
-        public event NewLineHandler NewLine;
+        /// <summary>
+        /// Gets the event triggered when a new line is parsed.
+        /// </summary>
+        public event NewLineHandler? NewLine;
 
         private void ParseLine(DateTime logTime, string logLine)
         {
@@ -281,7 +301,7 @@
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="JsonTextWriter"/> class.
+        /// Finalizes an instance of the <see cref="Parser"/> class.
         /// </summary>
         ~Parser()
         {
@@ -291,7 +311,7 @@
         /// <summary>
         /// True after <see cref="Dispose(bool)"/> has been invoked.
         /// </summary>
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         /// <summary>
         /// Disposes of every reference that must be cleaned up.
@@ -304,10 +324,8 @@
                 ChatTimer = null;
             }
 
-            if (LogStream != null)
+            using (LogStream)
             {
-                using (FileStream fs = LogStream) { }
-                LogStream = null;
             }
         }
         #endregion

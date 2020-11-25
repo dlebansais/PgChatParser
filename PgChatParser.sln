@@ -4,6 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgChatParser", "PgChatParser\PgChatParser.csproj", "{2960FEB1-2085-4301-8ED6-18B9833908C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FA58C33D-78E7-44ED-A1A2-D0EFF36C15FF} = {FA58C33D-78E7-44ED-A1A2-D0EFF36C15FF}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{753144E5-2E35-4AEC-B10C-DC5B6F4AE929}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PreBuild", "PreBuild\PreBuild.csproj", "{FA58C33D-78E7-44ED-A1A2-D0EFF36C15FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +25,10 @@ Global
 		{2960FEB1-2085-4301-8ED6-18B9833908C5}.Debug|x64.Build.0 = Debug|x64
 		{2960FEB1-2085-4301-8ED6-18B9833908C5}.Release|x64.ActiveCfg = Release|x64
 		{2960FEB1-2085-4301-8ED6-18B9833908C5}.Release|x64.Build.0 = Release|x64
+		{FA58C33D-78E7-44ED-A1A2-D0EFF36C15FF}.Debug|x64.ActiveCfg = Debug|x64
+		{FA58C33D-78E7-44ED-A1A2-D0EFF36C15FF}.Debug|x64.Build.0 = Debug|x64
+		{FA58C33D-78E7-44ED-A1A2-D0EFF36C15FF}.Release|x64.ActiveCfg = Release|x64
+		{FA58C33D-78E7-44ED-A1A2-D0EFF36C15FF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
