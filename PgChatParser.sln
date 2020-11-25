@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgChatParser", "PgChatParser\PgChatParser.csproj", "{2960FEB1-2085-4301-8ED6-18B9833908C5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2960FEB1-2085-4301-8ED6-18B9833908C5}.Debug|x64.ActiveCfg = Debug|x64
+		{2960FEB1-2085-4301-8ED6-18B9833908C5}.Debug|x64.Build.0 = Debug|x64
+		{2960FEB1-2085-4301-8ED6-18B9833908C5}.Release|x64.ActiveCfg = Release|x64
+		{2960FEB1-2085-4301-8ED6-18B9833908C5}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BDB160F1-B695-4D0F-AA19-E72372D74EE4}
+	EndGlobalSection
+EndGlobal
