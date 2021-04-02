@@ -37,6 +37,17 @@
             }
 
             LogStream = null !;
+
+            if (Watcher != null)
+            {
+                using (Watcher)
+                {
+                    Watcher.EnableRaisingEvents = false;
+                    Watcher.Changed -= OnZoneChanged;
+                }
+
+                Watcher = null!;
+            }
         }
         #endregion
 
@@ -67,9 +78,19 @@
         }
 
         /// <summary>
+        /// Gets the local folder.
+        /// </summary>
+        public string LocalFolder { get; private set; } = string.Empty;
+
+        /// <summary>
         /// Gets the local log folder.
         /// </summary>
         public string LocalLogFolder { get; private set; } = string.Empty;
+
+        /// <summary>
+        /// Gets the low privilege local folder.
+        /// </summary>
+        public string LocalLowFolder { get; private set; } = string.Empty;
 
         /// <summary>
         /// Gets the low privilege local log folder.
@@ -142,10 +163,12 @@
         #region Folders
         private void InitFolders()
         {
-            LocalLogFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"ProjectGorgon\screenshots");
+            LocalFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjectGorgon");
+            LocalLogFolder = Path.Combine(LocalFolder, "ChatLogs");
 
             string ChatLogPath = NativeMethods.GetKnownFolderPath(NativeMethods.LocalLowId);
-            LocalLowLogFolder = Path.Combine(ChatLogPath, @"Elder Game\Project Gorgon\ChatLogs");
+            LocalLowFolder = Path.Combine(ChatLogPath, @"Elder Game\Project Gorgon");
+            LocalLowLogFolder = Path.Combine(LocalLowFolder, "ChatLogs");
         }
 
         private void SelectFolder()
@@ -172,9 +195,15 @@
                 LocalLowLastWrite = DateTime.MinValue;
 
             if (LocalLastWrite >= LocalLowLastWrite)
+            {
+                SelectedFolder = LocalFolder;
                 SelectedLogFolder = LocalLogFolder;
+            }
             else
+            {
+                SelectedFolder = LocalLowFolder;
                 SelectedLogFolder = LocalLowLogFolder;
+            }
         }
 
         private void TryConnecting()
@@ -199,6 +228,13 @@
                     LogStream = null !;
                 }
             }
+
+            Watcher = new FileSystemWatcher();
+            Watcher.Path = SelectedFolder;
+            Watcher.NotifyFilter = NotifyFilters.LastWrite;
+            Watcher.Filter = "GorgonSettings.txt";
+            Watcher.Changed += OnZoneChanged;
+            Watcher.EnableRaisingEvents = true;
         }
 
         private static string FilePathInFolder(string logFolder)
@@ -210,8 +246,20 @@
             return LogFilePath;
         }
 
+        private void OnZoneChanged(object sender, FileSystemEventArgs e)
+        {
+            ZoneChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Gets the event triggered when a new line is parsed.
+        /// </summary>
+        public event EventHandler? ZoneChanged;
+
         private string CustomLogFolder = string.Empty;
+        private string SelectedFolder = string.Empty;
         private string SelectedLogFolder = string.Empty;
+        private FileSystemWatcher? Watcher = null;
         #endregion
 
         #region Parsing
@@ -325,6 +373,10 @@
             }
 
             using (LogStream)
+            {
+            }
+
+            using (Watcher)
             {
             }
         }

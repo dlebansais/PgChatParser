@@ -16,8 +16,8 @@
             {
                 int hr = SHGetKnownFolderPath(knownFolderId, 0, IntPtr.Zero, out pszPath);
                 if (hr >= 0)
-                    return Marshal.PtrToStringAuto(pszPath) !;
-                throw Marshal.GetExceptionForHR(hr) !;
+                    return Marshal.PtrToStringAuto(pszPath)!;
+                throw Marshal.GetExceptionForHR(hr)!;
             }
             finally
             {
