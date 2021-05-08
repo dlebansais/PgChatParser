@@ -208,6 +208,17 @@
 
         private void TryConnecting()
         {
+            try
+            {
+                Watcher = new FileSystemWatcher();
+                Watcher.Path = SelectedFolder;
+            }
+            catch
+            {
+                Watcher = null;
+                return;
+            }
+
             string SelectedLogFilePath = FilePathInFolder(SelectedLogFolder);
 
             if (File.Exists(SelectedLogFilePath))
@@ -229,12 +240,13 @@
                 }
             }
 
-            Watcher = new FileSystemWatcher();
-            Watcher.Path = SelectedFolder;
-            Watcher.NotifyFilter = NotifyFilters.LastWrite;
-            Watcher.Filter = "GorgonSettings.txt";
-            Watcher.Changed += OnZoneChanged;
-            Watcher.EnableRaisingEvents = true;
+            if (LogStream != null)
+            {
+                Watcher.NotifyFilter = NotifyFilters.LastWrite;
+                Watcher.Filter = "GorgonSettings.txt";
+                Watcher.Changed += OnZoneChanged;
+                Watcher.EnableRaisingEvents = true;
+            }
         }
 
         private static string FilePathInFolder(string logFolder)
