@@ -32,11 +32,14 @@
         #region Cleanup
         private void Disconnect()
         {
-            using (LogStream)
+            if (LogStream != null)
             {
-            }
+                using (LogStream)
+                {
+                }
 
-            LogStream = null !;
+                LogStream = null!;
+            }
 
             if (Watcher != null)
             {
@@ -194,20 +197,31 @@
             else
                 LocalLowLastWrite = DateTime.MinValue;
 
-            if (LocalLastWrite >= LocalLowLastWrite)
+            if (LocalLastWrite != DateTime.MinValue || LocalLowLastWrite != DateTime.MinValue)
             {
-                SelectedFolder = LocalFolder;
-                SelectedLogFolder = LocalLogFolder;
+                if (LocalLastWrite >= LocalLowLastWrite)
+                {
+                    SelectedFolder = LocalFolder;
+                    SelectedLogFolder = LocalLogFolder;
+                }
+                else
+                {
+                    SelectedFolder = LocalLowFolder;
+                    SelectedLogFolder = LocalLowLogFolder;
+                }
             }
             else
             {
-                SelectedFolder = LocalLowFolder;
-                SelectedLogFolder = LocalLowLogFolder;
+                SelectedFolder = string.Empty;
+                SelectedLogFolder = string.Empty;
             }
         }
 
         private void TryConnecting()
         {
+            if (SelectedFolder.Length == 0)
+                return;
+
             try
             {
                 Watcher = new FileSystemWatcher();
@@ -240,7 +254,7 @@
                 }
             }
 
-            if (LogStream != null)
+            if (LogStream != null && Watcher != null)
             {
                 Watcher.NotifyFilter = NotifyFilters.LastWrite;
                 Watcher.Filter = "GorgonSettings.txt";
