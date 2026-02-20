@@ -299,7 +299,7 @@ public class Parser : IDisposable
             {
                 int Length = (int)(NewPosition - OldPosition);
                 byte[] Content = new byte[Length];
-                LogStream.Read(Content, 0, Length);
+                _ = LogStream.Read(Content, 0, Length);
                 string ExtractedLines = Encoding.UTF8.GetString(Content);
 
                 ParseChat(ExtractedLines);
