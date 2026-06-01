@@ -6,14 +6,14 @@
         <Nullable>enable</Nullable>
         <Platforms>x64</Platforms>
         <UseWPF>true</UseWPF>
-        <Version>1.1.2</Version>
+        <Version>1.2.0</Version>
         <Authors>David Le Bansais</Authors>
         <Company />
         <Product />
         <Description>A parser for chat logs in Project: Gorgon</Description>
         <Copyright>Copyright © David Le Bansais 2026</Copyright>
-        <AssemblyVersion>1.1.2.7</AssemblyVersion>
-        <FileVersion>1.1.2.7</FileVersion>
+        <AssemblyVersion>1.2.0.9</AssemblyVersion>
+        <FileVersion>1.2.0.9</FileVersion>
         <RepositoryUrl>https://github.com/dlebansais/PgChatParser</RepositoryUrl>
         <NeutralLanguage>en-US</NeutralLanguage>
         <RootNamespace>PgChatParser</RootNamespace>

@@ -266,7 +266,21 @@ public class Parser : IDisposable
     {
         DateTime Now = DateTime.Now;
         string LogFile = "Chat-" + (Now.Year % 100).ToString(CultureInfo.InvariantCulture) + "-" + Now.Month.ToString("D2", CultureInfo.InvariantCulture) + "-" + Now.Day.ToString("D2", CultureInfo.InvariantCulture) + ".log";
-        string LogFilePath = Path.Combine(logFolder, LogFile);
+
+        string[] Files = Directory.GetFiles(logFolder, $"*{LogFile}", SearchOption.TopDirectoryOnly);
+        DateTime LatestWrite = DateTime.MinValue;
+        string LatestFile = string.Empty;
+        foreach (string File in Files)
+        {
+            DateTime WriteTime = System.IO.File.GetLastWriteTimeUtc(File);
+            if (WriteTime > LatestWrite)
+            {
+                LatestWrite = WriteTime;
+                LatestFile = Path.GetFileName(File);
+            }
+        }
+
+        string LogFilePath = Path.Combine(logFolder, LatestFile);
 
         return LogFilePath;
     }
