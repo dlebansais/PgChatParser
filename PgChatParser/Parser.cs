@@ -282,7 +282,7 @@ public class Parser : IDisposable
         }
 
         result = string.Empty;
-        return true;
+        return false;
     }
 
     private void OnZoneChanged(object sender, FileSystemEventArgs e)
