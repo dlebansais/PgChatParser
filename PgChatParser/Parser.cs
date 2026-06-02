@@ -181,20 +181,12 @@ public class Parser : IDisposable
             return;
         }
 
-        string LocalLogFilePath = FilePathInFolder(LocalLogFolder);
-        string LocalLowLogFilePath = FilePathInFolder(LocalLowLogFolder);
-        DateTime LocalLastWrite;
-        DateTime LocalLowLastWrite;
-
-        if (File.Exists(LocalLogFilePath))
-            LocalLastWrite = File.GetLastWriteTimeUtc(LocalLogFilePath);
-        else
-            LocalLastWrite = DateTime.MinValue;
-
-        if (File.Exists(LocalLowLogFilePath))
-            LocalLowLastWrite = File.GetLastWriteTimeUtc(LocalLowLogFilePath);
-        else
-            LocalLowLastWrite = DateTime.MinValue;
+        DateTime LocalLastWrite = FilePathInFolder(LocalLogFolder, out string LocalLogFilePath)
+            ? File.GetLastWriteTimeUtc(LocalLogFilePath)
+            : DateTime.MinValue;
+        DateTime LocalLowLastWrite = FilePathInFolder(LocalLowLogFolder, out string LocalLowLogFilePath)
+            ? File.GetLastWriteTimeUtc(LocalLowLogFilePath)
+            : DateTime.MinValue;
 
         if (LocalLastWrite != DateTime.MinValue || LocalLowLastWrite != DateTime.MinValue)
         {
@@ -232,9 +224,7 @@ public class Parser : IDisposable
             return;
         }
 
-        string SelectedLogFilePath = FilePathInFolder(SelectedLogFolder);
-
-        if (File.Exists(SelectedLogFilePath))
+        if (FilePathInFolder(SelectedLogFolder, out string SelectedLogFilePath))
         {
             try
             {
@@ -262,27 +252,37 @@ public class Parser : IDisposable
         }
     }
 
-    private static string FilePathInFolder(string logFolder)
+    private static bool FilePathInFolder(string logFolder, out string result)
     {
-        DateTime Now = DateTime.Now;
-        string LogFile = "Chat-" + (Now.Year % 100).ToString(CultureInfo.InvariantCulture) + "-" + Now.Month.ToString("D2", CultureInfo.InvariantCulture) + "-" + Now.Day.ToString("D2", CultureInfo.InvariantCulture) + ".log";
-
-        string[] Files = Directory.GetFiles(logFolder, $"*{LogFile}", SearchOption.TopDirectoryOnly);
-        DateTime LatestWrite = DateTime.MinValue;
-        string LatestFile = string.Empty;
-        foreach (string File in Files)
+        if (Directory.Exists(logFolder))
         {
-            DateTime WriteTime = System.IO.File.GetLastWriteTimeUtc(File);
-            if (WriteTime > LatestWrite)
+            DateTime Now = DateTime.Now;
+            string LogFile = "Chat-" + (Now.Year % 100).ToString(CultureInfo.InvariantCulture) + "-" + Now.Month.ToString("D2", CultureInfo.InvariantCulture) + "-" + Now.Day.ToString("D2", CultureInfo.InvariantCulture) + ".log";
+
+            string[] Files = Directory.GetFiles(logFolder, $"*{LogFile}", SearchOption.TopDirectoryOnly);
+            DateTime LatestWrite = DateTime.MinValue;
+            string LatestFile = string.Empty;
+            foreach (string File in Files)
             {
-                LatestWrite = WriteTime;
-                LatestFile = Path.GetFileName(File);
+                DateTime WriteTime = System.IO.File.GetLastWriteTimeUtc(File);
+                if (WriteTime > LatestWrite)
+                {
+                    LatestWrite = WriteTime;
+                    LatestFile = Path.GetFileName(File);
+                }
+            }
+
+            string LogFilePath = Path.Combine(logFolder, LatestFile);
+
+            if (File.Exists(LogFilePath))
+            {
+                result = LogFilePath;
+                return true;
             }
         }
 
-        string LogFilePath = Path.Combine(logFolder, LatestFile);
-
-        return LogFilePath;
+        result = string.Empty;
+        return true;
     }
 
     private void OnZoneChanged(object sender, FileSystemEventArgs e)
